@@ -5,9 +5,14 @@
 #define LIMIT_KEY_LENGTH 100
 #define LIMIT_VALUE_LENGTH 100
 
+typedef struct _pair {
+    char *first;
+    char *second;
+} pair;
+
 typedef struct _node {
-    char key[LIMIT_KEY_LENGTH];
-    char value[LIMIT_VALUE_LENGTH];
+    char *key;
+    char *value;
     struct _node *next;
 } node;
 
@@ -17,6 +22,7 @@ typedef struct _hashmap {
 } hashmap;
 
 void init_hashmap(hashmap *map);
+void init_nhashmap(hashmap *map, int num_pair, pair *pairs);
 int hash_function(char *key);
 
 void mp_insert(hashmap *map, char *key, char *value);

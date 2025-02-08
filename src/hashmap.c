@@ -14,6 +14,18 @@ void init_hashmap(hashmap *map) {
     memset(map->arr, 0, sizeof(node*) * MAP_CAPACITY);
 }
 
+void init_nhashmap(hashmap *map, int num_pair, pair *pairs) {
+    if (map == NULL) {
+        return;
+    }
+
+    init_hashmap(map);
+
+    for (int i=0; i<num_pair; i++) {
+        mp_insert(map, pairs[i].first, pairs[i].second);
+    }
+}
+
 int hash_function(char *key) {
     unsigned long hash = 5381;
     int c;
@@ -30,8 +42,8 @@ void mp_insert(hashmap *map, char *key, char *value) {
     int bucket_index = hash_function(key);
 
     node *new_node = (node*)malloc(sizeof(node));
-    strcpy(new_node->key, key);
-    strcpy(new_node->value, value);
+    strcpy((new_node->key = (char*)malloc(strlen(key))), key);
+    strcpy((new_node->value = (char*)malloc(strlen(value))), value);
     new_node->next = NULL;
 
     if (map->arr[bucket_index] != NULL) {
@@ -98,6 +110,8 @@ void mp_clear(hashmap *map) {
             while (tmp != NULL) {
                 gb = tmp;
                 tmp = tmp->next;
+                free(gb->key);
+                free(gb->value);
                 free(gb);
             }
         }
