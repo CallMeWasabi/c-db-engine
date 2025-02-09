@@ -1,8 +1,8 @@
 // Implementation hashmap
-#include "../libs/hashmap/hashmap.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../libs/hashmap/hashmap.h"
 
 void init_hashmap(hashmap *map) {
     if (map == NULL) {
@@ -11,10 +11,10 @@ void init_hashmap(hashmap *map) {
 
     map->capacity = MAP_CAPACITY;
     map->size = 0;
-    memset(map->arr, 0, sizeof(node*) * MAP_CAPACITY);
+    memset(map->arr, 0, sizeof(hash_node*) * MAP_CAPACITY);
 }
 
-void init_nhashmap(hashmap *map, int num_pair, pair *pairs) {
+void init_nhashmap(hashmap *map, int num_pair, hash_pair *pairs) {
     if (map == NULL) {
         return;
     }
@@ -41,13 +41,24 @@ int hash_function(char *key) {
 void mp_insert(hashmap *map, char *key, char *value) {
     int bucket_index = hash_function(key);
 
-    node *new_node = (node*)malloc(sizeof(node));
-    strcpy((new_node->key = (char*)malloc(strlen(key))), key);
-    strcpy((new_node->value = (char*)malloc(strlen(value))), value);
+    hash_node *new_node = (hash_node*)malloc(sizeof(hash_node));
+    new_node->key = malloc(strlen(key) + 1);
+    new_node->value = malloc(strlen(value) + 1);
+
+    if (new_node->key == NULL || new_node->value == NULL) {
+        fprintf(stderr, "Memory allocation failed for node->key and node->value\n");
+        free(new_node->key);
+        free(new_node->value);
+        free(new_node);
+        return;
+    }
+
+    strcpy(new_node->key, key);
+    strcpy(new_node->value, value);
     new_node->next = NULL;
 
     if (map->arr[bucket_index] != NULL) {
-        node *tmp = map->arr[bucket_index];
+        hash_node *tmp = map->arr[bucket_index];
         while (tmp->next != NULL && strcmp(tmp->key, key) != 0) {
             tmp = tmp->next;
         }
@@ -69,7 +80,7 @@ void mp_remove(hashmap *map, char *key) {
 
     int bucket_index = hash_function(key);
 
-    node *tmp = map->arr[bucket_index], *prev = NULL;
+    hash_node *tmp = map->arr[bucket_index], *prev = NULL;
     while (tmp != NULL && strcmp(tmp->key, key) != 0) {
         printf("%s %s\n", tmp->key, key);
         prev = tmp;
@@ -91,7 +102,7 @@ void mp_remove(hashmap *map, char *key) {
 char *mp_search(hashmap* map, char *key) {
     int bucket_index = hash_function(key);
 
-    node *tmp = map->arr[bucket_index];
+    hash_node *tmp = map->arr[bucket_index];
     while (tmp != NULL && strcmp(tmp->key, key) != 0) {
         tmp = tmp->next;
     }
@@ -103,10 +114,10 @@ char *mp_search(hashmap* map, char *key) {
     return tmp->value;
 }
 
-void mp_clear(hashmap *map) {
+void mp_free(hashmap *map) {
     for (int i=0; i<MAP_CAPACITY; i++) {
         if (map->arr[i] != NULL) {
-            node *tmp = map->arr[i], *gb;
+            hash_node *tmp = map->arr[i], *gb;
             while (tmp != NULL) {
                 gb = tmp;
                 tmp = tmp->next;
@@ -117,4 +128,5 @@ void mp_clear(hashmap *map) {
         }
     }
     map->size = 0;
+    free(map);
 }
