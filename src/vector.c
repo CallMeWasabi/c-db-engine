@@ -30,13 +30,13 @@ void str_vec_push_back(str_vector *vec, const char *value) {
             return;
         }
     }
-    vec->arr[vec->size] = strdup(value);
 
+    vec->arr[vec->size] = malloc(strlen(value) + 1);
     if (vec->arr[vec->size] == NULL) {
-        fprintf(stderr, "Memory allocation failed for strdup\n");
-        free(vec->arr[vec->size]);
+        fprintf(stderr, "Memory allocation failed for element\n");
         return;
     }
+    strcpy(vec->arr[vec->size], value);
 
     vec->size += 1;
 }
